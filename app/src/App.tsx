@@ -6,7 +6,6 @@ import Visual3DCanvas from "@/components/canvas/Visual3D";
 import { ControlsPanel } from "@/components/controls/main";
 import { useModeContext } from "@/context/mode";
 import { type ApplicationMode, APPLICATION_MODE } from "@/lib/applicationModes";
-import MusicPlayer from "@/components/MusicPlayer";
 import { Music } from "lucide-react";
 const getAnalyzerComponent = (mode: ApplicationMode) => {
   switch (mode) {
@@ -47,7 +46,7 @@ const App = () => {
         <Suspense fallback={<span>loading...</span>}>
           {getAnalyzerComponent(mode)}
         </Suspense>
-<MusicPlayer />
+
       </div>
       <ControlsPanel />
     </main>

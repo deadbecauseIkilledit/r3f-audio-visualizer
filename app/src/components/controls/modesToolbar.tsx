@@ -64,6 +64,7 @@ import { cn } from "@/lib/utils";
 
 import { FileUploadControls } from "./audio/fileUpload";
 import { SoundcloudControls } from "./audio/soundcloud/controls";
+import FirestoreAudioControls from "../audio/sourceControls/firestore";
 
 const ModeIcon = ({
   mode,
@@ -94,7 +95,7 @@ const AudioSourceIcon = ({
       return <Mic {...props} />;
     case AUDIO_SOURCE.SCREEN_SHARE:
       return <ScreenShare {...props} />;
-    case AUDIO_SOURCE.FILE_UPLOAD:
+    case AUDIO_SOURCE.FIRESTORE:
       return <FileUp {...props} />;
     default:
       return audioSource satisfies never;
@@ -124,15 +125,15 @@ const WaveformModeControls = () => {
   const { setMaxAmplitude, setWaveformFrequenciesHz, reset } =
     useWaveGeneratorContextSetters();
   return (
-    <div className="flex w-full flex-col items-start justify-start gap-4">
-      <div className="flex w-full items-center justify-between">
+    <div className="flex flex-col items-start justify-start w-full gap-4">
+      <div className="flex items-center justify-between w-full">
         <span>Wave Form</span>
         <RefreshCcw
-          className="pointer-events-auto cursor-pointer"
+          className="cursor-pointer pointer-events-auto"
           onClick={() => reset()}
         />
       </div>
-      <div className="flex w-full items-center justify-between">
+      <div className="flex items-center justify-between w-full">
         <Label htmlFor="color-background">Double</Label>
         <Switch
           id="waveform-double"
@@ -242,11 +243,11 @@ const NoiseGeneratorModeControls = () => {
   const { setAmplitude, setSpatialScale, setTimeScale, setNIterations, reset } =
     useNoiseGeneratorContextSetters();
   return (
-    <div className="flex w-full flex-col items-start justify-start gap-4">
-      <div className="flex w-full items-center justify-between">
+    <div className="flex flex-col items-start justify-start w-full gap-4">
+      <div className="flex items-center justify-between w-full">
         <span>Noise </span>
         <RefreshCcw
-          className="pointer-events-auto cursor-pointer"
+          className="cursor-pointer pointer-events-auto"
           onClick={() => reset()}
         />
       </div>
@@ -291,8 +292,8 @@ const AudioSourceControls = () => {
   switch (audioSource) {
     case AUDIO_SOURCE.SOUNDCLOUD:
       return <SoundcloudControls />;
-    case AUDIO_SOURCE.FILE_UPLOAD:
-      return <FileUploadControls />;
+    case AUDIO_SOURCE.FIRESTORE:
+      return <FirestoreAudioControls />;
     case AUDIO_SOURCE.MICROPHONE:
     case AUDIO_SOURCE.SCREEN_SHARE:
       // TODO: Add controls
@@ -340,7 +341,7 @@ const AudioSourceSelect = ({
 const AudioModeControls = () => {
   return (
     <Tabs defaultValue="source" className="w-full">
-      <div className="flex w-full flex-row justify-center">
+      <div className="flex flex-row justify-center w-full">
         <TabsList>
           <TabsTrigger value="source">Source</TabsTrigger>
           <TabsTrigger value="analyzer">Analyzer</TabsTrigger>
@@ -392,7 +393,7 @@ const ModeSettingsPopover = () => {
   return (
     <ToolbarPopover
       trigger={
-        <MoreHorizontal className="pointer-events-auto cursor-pointer" />
+        <MoreHorizontal className="cursor-pointer pointer-events-auto" />
       }
       align="start"
       className="w-fit min-w-[12rem] border-0 border-transparent bg-background/50 p-2"

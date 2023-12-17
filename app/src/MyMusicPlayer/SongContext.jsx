@@ -2,7 +2,7 @@
 
 import React, {useContext, useState, useEffect, createContext} from 'react';
 import { v4 as uuidv4 } from 'uuid';
-import { storage, firestore } from '../lib/firebase';
+import { storage, firestore } from './firebase';
 
 const SongContext = createContext();
 

@@ -7,6 +7,7 @@ export const AUDIO_SOURCE = {
   MICROPHONE: "MICROPHONE",
   SOUNDCLOUD: "SOUNDCLOUD",
   SCREEN_SHARE: "SCREEN_SHARE",
+  FIRESTORE: "FIRESTORE",
 } as const;
 
 type ObjectValues<T> = T[keyof T];
@@ -30,6 +31,7 @@ export const getPlatformSupportedAudioSources = (): AudioSource[] => {
     AUDIO_SOURCE.MICROPHONE,
     AUDIO_SOURCE.FILE_UPLOAD,
     AUDIO_SOURCE.SCREEN_SHARE,
+    AUDIO_SOURCE.FIRESTORE,
   ];
 
   // Apple devices/browsers using WebKit do NOT support CrossOrigin Audio
