@@ -1,13 +1,13 @@
 import classnames from "classnames";
 import {
   Activity,
+  Database,
   MoreHorizontal,
   Music,
   Shell,
   Waves,
   Mic,
   ScreenShare,
-  FileUp,
   type LucideProps,
   RefreshCcw,
 } from "lucide-react";
@@ -96,7 +96,7 @@ const AudioSourceIcon = ({
     case AUDIO_SOURCE.SCREEN_SHARE:
       return <ScreenShare {...props} />;
     case AUDIO_SOURCE.FIRESTORE:
-      return <FileUp {...props} />;
+      return <Database {...props} />;
     default:
       return audioSource satisfies never;
   }
@@ -288,12 +288,15 @@ const NoiseGeneratorModeControls = () => {
 };
 
 const AudioSourceControls = () => {
-  const { audioSource } = useAudioSourceContext();
+  const { audioSource, audio } = useAudioSourceContext();
+  const onStreamCreated = (stream) => {
+    // Handle stream created event here...
+  };
   switch (audioSource) {
     case AUDIO_SOURCE.SOUNDCLOUD:
       return <SoundcloudControls />;
     case AUDIO_SOURCE.FIRESTORE:
-      return <FirestoreAudioControls />;
+      return <FirestoreAudioControls audio={audio} onStreamCreated={onStreamCreated} />;
     case AUDIO_SOURCE.MICROPHONE:
     case AUDIO_SOURCE.SCREEN_SHARE:
       // TODO: Add controls
