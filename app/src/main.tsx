@@ -14,6 +14,7 @@ import { FFTAnalyzerContextProvider } from "./context/fftAnalyzer";
 import { NoiseGeneratorContextProvider } from "./context/noiseGenerator";
 import { SoundcloudContextProvider } from "./context/soundcloud";
 import { WaveGeneratorContextProvider } from "./context/waveGenerator";
+import {SongProvider} from './context/SongContext'
 
 const queryClient = new QueryClient();
 
@@ -25,6 +26,7 @@ createRoot(document.getElementById("root")!).render(
           <WaveGeneratorContextProvider>
             <NoiseGeneratorContextProvider>
               <FFTAnalyzerContextProvider>
+              <SongProvider>
                 <AudioSourceContextProvider>
                   <SoundcloudContextProvider>
                     <CameraControlsContextProvider>
@@ -34,6 +36,8 @@ createRoot(document.getElementById("root")!).render(
                     </CameraControlsContextProvider>
                   </SoundcloudContextProvider>
                 </AudioSourceContextProvider>
+                </SongProvider>
+
               </FFTAnalyzerContextProvider>
             </NoiseGeneratorContextProvider>
           </WaveGeneratorContextProvider>
