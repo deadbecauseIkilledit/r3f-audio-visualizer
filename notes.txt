@@ -1,0 +1,334 @@
+I'm trying to integrate my own music player into this visualiser codebase that I've forked from git, I've isolated certain files I think are responsible for the getting of audio and feeding it into the visualiser and I'd like to take my own audio which I'm fetching from firestore using My SongContext file, and playing in my MusicPlayer file. However this codebase is very much typescript and my code is not, so I'm also having to figure out how to have my code accepted within this codebase. so I would appreciate your assistance in recognising the important functions within the code that I'll paste below, that triggers the visualiser using the audio, and how I can replace that with my own audio. 
+I'll first paste the code I believe is relevent from the codebase in question and then follow it by pasting the code I'd like to integrate. 
+
+please ask any clarifying questions you might have before proceding
+
+---audioSource.tsx---
+
+import { AUDIO_SOURCE } from "@/components/audio/sourceControls/common";
+import FileAudioControls from "@/components/audio/sourceControls/file";
+import { CurrentTrackPlayer } from "@/components/controls/audio/soundcloud/player";
+
+export const ControlledAudioSource = ({
+  audio,
+  audioSource,
+}: {
+  audio: HTMLAudioElement;
+  audioSource: "SOUNDCLOUD" | "FILE_UPLOAD";
+}) => {
+  switch (audioSource) {
+    case AUDIO_SOURCE.SOUNDCLOUD:
+      return <CurrentTrackPlayer audio={audio} />;
+    case AUDIO_SOURCE.FILE_UPLOAD:
+      return <FileAudioControls audio={audio} />;
+    default:
+      return audioSource satisfies never;
+  }
+};
+export default ControlledAudioSource;
+
+
+---common.tsx---
+
+export interface AudioSourceControlsProps {
+  audio: HTMLAudioElement;
+}
+
+export const AUDIO_SOURCE = {
+  FILE_UPLOAD: "FILE_UPLOAD",
+  MICROPHONE: "MICROPHONE",
+  SOUNDCLOUD: "SOUNDCLOUD",
+  SCREEN_SHARE: "SCREEN_SHARE",
+} as const;
+
+type ObjectValues<T> = T[keyof T];
+export type AudioSource = ObjectValues<typeof AUDIO_SOURCE>;
+
+export const iOS = (): boolean => {
+  // apple "iP..." device detection. Ex: iPad, iPod, iPhone etc.
+  if (navigator.platform.toLowerCase().startsWith("ip")) {
+    return true;
+  }
+  // iPad on iOS 13 detection
+  return (
+    navigator.userAgent?.toLowerCase().startsWith("mac") &&
+    "ontouchend" in document
+  );
+};
+
+export const getPlatformSupportedAudioSources = (): AudioSource[] => {
+  return [
+    AUDIO_SOURCE.SOUNDCLOUD,
+    AUDIO_SOURCE.MICROPHONE,
+    AUDIO_SOURCE.FILE_UPLOAD,
+    AUDIO_SOURCE.SCREEN_SHARE,
+  ];
+
+  // Apple devices/browsers using WebKit do NOT support CrossOrigin Audio
+  // see: https://bugs.webkit.org/show_bug.cgi?id=195043
+  // return iOS()
+  //   ? [AUDIO_SOURCE.FILE_UPLOAD, AUDIO_SOURCE.MICROPHONE]
+  //   : [
+  //     AUDIO_SOURCE.SOUNDCLOUD,
+  //     AUDIO_SOURCE.MICROPHONE,
+  //     AUDIO_SOURCE.FILE_UPLOAD,
+  //   ];
+};
+
+export const buildAudio = () => {
+  console.log("Building audio...");
+  const out = new Audio();
+  out.crossOrigin = "anonymous";
+  return out;
+};
+
+const webAudioTouchUnlock = (context: AudioContext) => {
+  return new Promise(function (resolve, reject) {
+    const unlockTriggerNames = ["mousedown", "touchstart", "touchend"] as const;
+    if (context.state === "suspended" && "ontouchstart" in window) {
+      const unlock = function () {
+        context.resume().then(
+          function () {
+            unlockTriggerNames.forEach((name) => {
+              document.body.removeEventListener(name, unlock);
+            });
+            resolve(true);
+          },
+          function (reason) {
+            reject(reason);
+          }
+        );
+      };
+      unlockTriggerNames.forEach((name) => {
+        document.body.addEventListener(name, unlock, false);
+      });
+    } else {
+      resolve(false);
+    }
+  });
+};
+
+export const buildAudioContext = () => {
+  console.log("Building audioCtx...");
+  const audioCtx = new window.AudioContext();
+  if (iOS()) {
+    console.log("Attempting to unlock AudioContext");
+    webAudioTouchUnlock(audioCtx).then(
+      function (unlocked) {
+        if (unlocked) {
+          // AudioContext was unlocked from an explicit user action,
+          // sound should work now
+          console.log("Successfully unlocked AudioContext!");
+        } else {
+          // There was no need for unlocking, devices other than iOS
+          console.log("No need to unlock AudioContext.");
+        }
+      },
+      function (reason) {
+        console.error(reason);
+      }
+    );
+  }
+  return audioCtx;
+};
+
+
+---context/audiosource.tsx---
+import {
+  createContext,
+  useContext,
+  useState,
+  type Dispatch,
+  type PropsWithChildren,
+  type SetStateAction,
+} from "react";
+
+import {
+  type AudioSource,
+  getPlatformSupportedAudioSources,
+} from "@/components/audio/sourceControls/common";
+
+export interface AudioSourceConfig {
+  audioSource: AudioSource;
+}
+
+export const AudioSourceContext = createContext<{
+  config: AudioSourceConfig;
+  setters: {
+    setAudioSource: Dispatch<SetStateAction<AudioSource>>;
+  };
+} | null>(null);
+
+export const AudioSourceContextProvider = ({
+  initial = undefined,
+  children,
+}: PropsWithChildren<{
+  initial?: Partial<AudioSourceConfig>;
+}>) => {
+  const [audioSource, setAudioSource] = useState<AudioSource>(
+    initial?.audioSource ?? getPlatformSupportedAudioSources()[0]
+  );
+
+  return (
+    <AudioSourceContext.Provider
+      value={{
+        config: {
+          audioSource: audioSource,
+        },
+        setters: {
+          setAudioSource: setAudioSource,
+        },
+      }}
+    >
+      {children}
+    </AudioSourceContext.Provider>
+  );
+};
+
+export function useAudioSourceContext() {
+  const context = useContext(AudioSourceContext);
+  if (!context) {
+    throw new Error(
+      "useAudioSourceContext must be used within a AudioSourceContextProvider"
+    );
+  }
+  return context.config;
+}
+
+export function useAudioSourceContextSetters() {
+  const context = useContext(AudioSourceContext);
+  if (!context) {
+    throw new Error(
+      "useAudioSourceContext must be used within a AudioSourceContextProvider"
+    );
+  }
+  return context.setters;
+}
+
+ 
+// The following files are my own code that I'm trying to integrate into the above codebase
+
+---SongContext.js---
+
+'use client'
+
+import React, {useContext, useState, useEffect, createContext} from 'react';
+import { v4 as uuidv4 } from 'uuid';
+import { storage, firestore } from '../lib/firebase';
+
+const SongContext = createContext();
+
+export function useSongs() {
+  return useContext(SongContext)
+}
+
+export function SongProvider({children}) {
+  const [songs, setsongs] = useState([]);
+
+  useEffect(() => {
+    // Fetch songs from Firestore
+    const unsubscribe = firestore.collection('songs').onSnapshot(snapshot => {
+      let SongList = [];
+      snapshot.forEach(doc => {
+        SongList.push({...doc.data(), id: doc.id});
+      });
+      setsongs(SongList);
+    });
+
+    return unsubscribe;
+  }, []);
+
+
+  const addSong = async (song) => {
+
+    if(song.image) {
+      const snapshot = await storage.ref(`songs/${uuidv4()}`).put(song.image);
+      const url = await snapshot.ref.getDownloadURL();
+      song.image = url;
+    }
+
+    await firestore.collection('songs').add(song);
+  }
+
+  const updateSong = async (id, updatedSong) => {
+        
+    if(updatedSong.image) {
+      const snapshot = await storage.ref(`songs/${uuidv4()}`).put(updatedSong.image);
+      const url = await snapshot.ref.getDownloadURL();
+      updatedSong.image = url;
+    }
+
+    await firestore.collection('songs').doc(id).update(updatedSong);
+  }
+
+  const value = {
+    songs,
+    addSong,
+    updateSong
+  }
+
+
+  return (
+    <SongContext.Provider value={value}>
+      {children}
+    </SongContext.Provider>
+  )
+}
+
+
+---MusicPlayer.js---
+
+import AudioPlayer, { RHAP_UI } from 'react-h5-audio-player';
+import 'react-h5-audio-player/lib/styles.css';
+import { useState, useEffect, useRef, useCallback } from "react";
+import { useSongs } from "../context/SongContext";
+
+function MusicPlayer() {
+    const { songs } = useSongs();
+    const [currentSong, setCurrentSong] = useState(null);
+  
+    // Set the first song in the list as the current song when the component first loads
+    useEffect(() => {
+      setCurrentSong(songs[0]);
+    }, [songs]);
+  
+    const handleSongChange = (song) => {
+      setCurrentSong(song);
+    };
+  
+    return (
+        <div className="flex items-center justify-center min-h-screen p-10 text-white">
+      <div className="space-y-10">
+
+        <h1>Do Harm Leave Trace</h1>
+        <ul className="p-2 border-2 border-white">
+          {songs.map((song, index) => (
+            <li key={index} className="px-2 py-1" onClick={() => handleSongChange(song)}>
+              {song.name}
+            </li>
+          ))}
+        </ul>
+        </div>
+        {currentSong && (
+          <AudioPlayer
+            autoPlay
+            src={currentSong.path}
+            onPlay={e => console.log("onPlay")}
+            customProgressBarSection={
+              [
+                RHAP_UI.CURRENT_TIME,
+                RHAP_UI.PROGRESS_BAR,
+                RHAP_UI.DURATION
+              ]
+            }
+            customControlsSection={
+              [RHAP_UI.MAIN_CONTROLS, RHAP_UI.VOLUME_CONTROLS]
+            }
+          />
+        )}
+      </div>
+    );
+  }
+  
+  export default MusicPlayer;
+
