@@ -131,7 +131,7 @@ const AudioAnalyzer = ({ mode }: { mode: "AUDIO" | "AUDIO_SCOPE" }) => {
     case AUDIO_SOURCE.SOUNDCLOUD:
     case AUDIO_SOURCE.FILE_UPLOAD:
       case AUDIO_SOURCE.FIRESTORE:
-        return <InternalAudioAnalyzer mode={mode} audioSource={audioSource} />;
+        // return <InternalAudioAnalyzer mode={mode} audioSource={audioSource} />;
     case AUDIO_SOURCE.MICROPHONE:
     case AUDIO_SOURCE.SCREEN_SHARE:
       return (

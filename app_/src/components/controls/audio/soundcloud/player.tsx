@@ -82,17 +82,17 @@ export const TrackPlayer = ({
       {...props}
     >
       <div
-        className="pointer-events-auto cursor-pointer rounded-full p-2 hover:scale-110"
+        className="p-2 rounded-full cursor-pointer pointer-events-auto hover:scale-110"
         onClick={() => setPlay((curr) => !curr)}
       >
         {/* TODO: Artwork */}
         {play ? <PauseCircle /> : <PlayCircle />}
       </div>
-      <div className="hidden flex-col items-start justify-center gap-1 sm:flex">
-        <span className="max-w-64 w-64 truncate text-sm text-foreground">
+      <div className="flex-col items-start justify-center hidden gap-1 sm:flex">
+        <span className="w-64 text-sm truncate max-w-64 text-foreground">
           {track.title}
         </span>
-        <span className="truncate text-xs text-foreground/50">
+        <span className="text-xs truncate text-foreground/50">
           {track.user?.username ?? "Unknown Artist"}
         </span>
       </div>
