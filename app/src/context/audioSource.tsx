@@ -14,6 +14,8 @@ import {
 
 export interface AudioSourceConfig {
   audioSource: AudioSource;
+  songUrl?: string;
+
 }
 
 export const AudioSourceContext = createContext<{
@@ -33,14 +35,21 @@ export const AudioSourceContextProvider = ({
     initial?.audioSource ?? getPlatformSupportedAudioSources()[0]
   );
 
+  const [songUrl, setSongUrl] = useState<string>(initial?.songUrl ?? '');
+
+
   return (
     <AudioSourceContext.Provider
       value={{
         config: {
           audioSource: audioSource,
+          songUrl: songUrl,
+
         },
         setters: {
           setAudioSource: setAudioSource,
+          setSongUrl: setSongUrl,
+
         },
       }}
     >
@@ -63,7 +72,7 @@ export function useAudioSourceContextSetters() {
   const context = useContext(AudioSourceContext);
   if (!context) {
     throw new Error(
-      "useAudioSourceContext must be used within a AudioSourceContextProvider"
+      "useAudioSourceSetters must be used within a AudioSourceContextProvider"
     );
   }
   return context.setters;

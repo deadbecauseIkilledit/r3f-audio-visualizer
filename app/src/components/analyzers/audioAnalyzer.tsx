@@ -1,4 +1,4 @@
-import { useMemo } from "react";
+import { useMemo, useEffect } from "react";
 
 import { FFTAnalyzerControls } from "@/components/analyzers/fftAnalyzerControls";
 import { ControlledAudioSource } from "@/components/audio/audioSource";
@@ -22,11 +22,14 @@ const InternalAudioAnalyzer = ({
   audioSource,
 }: {
   mode: "AUDIO" | "AUDIO_SCOPE";
-  audioSource: "SOUNDCLOUD" | "FILE_UPLOAD";
+  audioSource: "SOUNDCLOUD" | "FILE_UPLOAD" | "FIRESTORE";
 }) => {
   const audioCtx = useMemo(() => buildAudioContext(), [mode]);
   const audio = useMemo(() => buildAudio(), [mode]);
-  const analyzer = useMemo(() => {
+  const { songUrl } = useAudioSourceContext(); // Get `songUrl` from context
+
+   // Build the analyzer with the audio element
+   const analyzer = useMemo(() => {
     console.log("Creating analyzer...");
     switch (mode) {
       case APPLICATION_MODE.AUDIO:
@@ -39,6 +42,15 @@ const InternalAudioAnalyzer = ({
         return mode satisfies never;
     }
   }, [mode, audio, audioCtx]);
+
+  useEffect(() => {
+    if (songUrl) {
+      audio.src = songUrl;
+      audio.load(); 
+      // Ensure autoplay when source gets updated
+      audio.oncanplaythrough = () => audio.play();
+    }
+  }, [songUrl]);
 
   return (
     <>
@@ -113,7 +125,8 @@ const AudioAnalyzer = ({ mode }: { mode: "AUDIO" | "AUDIO_SCOPE" }) => {
   switch (audioSource) {
     case AUDIO_SOURCE.SOUNDCLOUD:
     case AUDIO_SOURCE.FILE_UPLOAD:
-      return <InternalAudioAnalyzer mode={mode} audioSource={audioSource} />;
+      case AUDIO_SOURCE.FIRESTORE:
+        return <InternalAudioAnalyzer mode={mode} audioSource={audioSource} />;
     case AUDIO_SOURCE.MICROPHONE:
     case AUDIO_SOURCE.SCREEN_SHARE:
       return (

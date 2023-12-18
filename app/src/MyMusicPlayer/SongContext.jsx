@@ -27,32 +27,10 @@ export function SongProvider({children}) {
   }, []);
 
 
-  const addSong = async (song) => {
 
-    if(song.image) {
-      const snapshot = await storage.ref(`songs/${uuidv4()}`).put(song.image);
-      const url = await snapshot.ref.getDownloadURL();
-      song.image = url;
-    }
-
-    await firestore.collection('songs').add(song);
-  }
-
-  const updateSong = async (id, updatedSong) => {
-        
-    if(updatedSong.image) {
-      const snapshot = await storage.ref(`songs/${uuidv4()}`).put(updatedSong.image);
-      const url = await snapshot.ref.getDownloadURL();
-      updatedSong.image = url;
-    }
-
-    await firestore.collection('songs').doc(id).update(updatedSong);
-  }
 
   const value = {
     songs,
-    addSong,
-    updateSong
   }
 
 

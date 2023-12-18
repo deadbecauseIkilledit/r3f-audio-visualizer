@@ -7,6 +7,7 @@ import { ControlsPanel } from "@/components/controls/main";
 import { useModeContext } from "@/context/mode";
 import { type ApplicationMode, APPLICATION_MODE } from "@/lib/applicationModes";
 import { Music } from "lucide-react";
+
 const getAnalyzerComponent = (mode: ApplicationMode) => {
   switch (mode) {
     case APPLICATION_MODE.AUDIO:
