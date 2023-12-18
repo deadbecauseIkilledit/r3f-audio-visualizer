@@ -1,22 +1,17 @@
-import { useContext, useEffect, useState } from "react";
+import { useContext, useEffect, useState, useCallback } from "react";
 import { useSongs } from '../../../MyMusicPlayer/SongContext'; //
 import AudioPlayer, { RHAP_UI } from 'react-h5-audio-player';
-import { AudioSourceContextProvider } from './context/audioSource';
-import { useAudioSourceContextSetters } from "@/context/audioSource";
+import { useAudioSourceContextSetters, AudioSourceContextProvider } from "@/context/audioSource";
 
-const useFireStoreAudio = (audio) => { // Removed the HTMLAudioElement type here.
-  const { songs } = useSongs(); // using your context
+const useFireStoreAudio = (audio) => { 
+  const { songs } = useSongs();
   const [currentSong, setCurrentSong] = useState(null);
   const { setSongUrl } = useAudioSourceContextSetters();
 
-  useEffect(() => {
-    setCurrentSong(songs[1]);
-  }, [songs]);
-
-  const handleSongChange = (song) => {
+  const handleSongChange = useCallback((song) => {
     setCurrentSong(song);
     setSongUrl(song.path);
-  };
+  }, [setSongUrl]);
 
   return {
     songs,

@@ -28,8 +28,7 @@ const InternalAudioAnalyzer = ({
   const audio = useMemo(() => buildAudio(), [mode]);
   const { songUrl } = useAudioSourceContext(); // Get `songUrl` from context
 
-   // Build the analyzer with the audio element
-   const analyzer = useMemo(() => {
+  const analyzer = useMemo(() => {
     console.log("Creating analyzer...");
     switch (mode) {
       case APPLICATION_MODE.AUDIO:
@@ -45,10 +44,16 @@ const InternalAudioAnalyzer = ({
 
   useEffect(() => {
     if (songUrl) {
+      console.log(`Loading song from: ${songUrl}`);
       audio.src = songUrl;
       audio.load(); 
-      // Ensure autoplay when source gets updated
-      audio.oncanplaythrough = () => audio.play();
+      audio.oncanplaythrough = () => {
+        console.log(`Loaded song from: ${songUrl}`);
+        audio.play();
+      }
+      audio.onerror = (error) => {
+        console.error(`Error loading song from: ${songUrl}`, error);
+      }
     }
   }, [songUrl]);
 
@@ -71,7 +76,7 @@ const InternalMediaStreamAnalyzer = ({
   audioSource,
 }: {
   mode: "AUDIO" | "AUDIO_SCOPE";
-  audioSource: "MICROPHONE" | "SCREEN_SHARE";
+  audioSource: "MICROPHONE" | "SCREEN_SHARE" | "FILE_UPLOAD" | "FIRESTORE";
 }) => {
   const audioCtx = useMemo(() => buildAudioContext(), []);
   const audio = useMemo(() => buildAudio(), []);

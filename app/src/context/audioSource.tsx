@@ -22,6 +22,7 @@ export const AudioSourceContext = createContext<{
   config: AudioSourceConfig;
   setters: {
     setAudioSource: Dispatch<SetStateAction<AudioSource>>;
+    setSongUrl: Dispatch<SetStateAction<string>>; // Add this line
   };
 } | null>(null);
 
