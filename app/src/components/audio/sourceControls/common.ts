@@ -3,10 +3,6 @@ export interface AudioSourceControlsProps {
 }
 
 export const AUDIO_SOURCE = {
-  FILE_UPLOAD: "FILE_UPLOAD",
-  MICROPHONE: "MICROPHONE",
-  SOUNDCLOUD: "SOUNDCLOUD",
-  SCREEN_SHARE: "SCREEN_SHARE",
   FIRESTORE: "FIRESTORE",
 } as const;
 
@@ -27,10 +23,6 @@ export const iOS = (): boolean => {
 
 export const getPlatformSupportedAudioSources = (): AudioSource[] => {
   return [
-    AUDIO_SOURCE.SOUNDCLOUD,
-    AUDIO_SOURCE.MICROPHONE,
-    AUDIO_SOURCE.FILE_UPLOAD,
-    AUDIO_SOURCE.SCREEN_SHARE,
     AUDIO_SOURCE.FIRESTORE,
   ];
 

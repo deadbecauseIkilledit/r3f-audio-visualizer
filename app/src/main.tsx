@@ -12,7 +12,6 @@ import { VisualContextProvider } from "@/context/visual";
 import { AudioSourceContextProvider } from "./context/audioSource";
 import { FFTAnalyzerContextProvider } from "./context/fftAnalyzer";
 import { NoiseGeneratorContextProvider } from "./context/noiseGenerator";
-import { SoundcloudContextProvider } from "./context/soundcloud";
 import { WaveGeneratorContextProvider } from "./context/waveGenerator";
 import {SongProvider} from "./MyMusicPlayer/SongContext";
 const queryClient = new QueryClient();
@@ -28,13 +27,11 @@ createRoot(document.getElementById("root")!).render(
                 <SongProvider>
 
                 <AudioSourceContextProvider>
-                  <SoundcloudContextProvider>
                     <CameraControlsContextProvider>
                       <VisualContextProvider>
                         <App />
                       </VisualContextProvider>
                     </CameraControlsContextProvider>
-                  </SoundcloudContextProvider>
                 </AudioSourceContextProvider>
                 </SongProvider>
 

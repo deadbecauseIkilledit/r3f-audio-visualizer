@@ -7,8 +7,6 @@ import {
   buildAudio,
   buildAudioContext,
 } from "@/components/audio/sourceControls/common";
-import MicrophoneAudioControls from "@/components/audio/sourceControls/mic";
-import ScreenShareControls from "@/components/audio/sourceControls/screenshare";
 import { useAudioSourceContext } from "@/context/audioSource";
 import { useMediaStreamLink } from "@/lib/analyzers/common";
 import FFTAnalyzer from "@/lib/analyzers/fft";
@@ -22,7 +20,7 @@ const InternalAudioAnalyzer = ({
   audioSource,
 }: {
   mode: "AUDIO" | "AUDIO_SCOPE";
-  audioSource: "SOUNDCLOUD" | "FILE_UPLOAD" | "FIRESTORE";
+  audioSource: "FIRESTORE";
 }) => {
   const audioCtx = useMemo(() => buildAudioContext(), [mode]);
   const audio = useMemo(() => buildAudio(), [mode]);
@@ -76,7 +74,7 @@ const InternalMediaStreamAnalyzer = ({
   audioSource,
 }: {
   mode: "AUDIO" | "AUDIO_SCOPE";
-  audioSource: "MICROPHONE" | "SCREEN_SHARE" | "FILE_UPLOAD" | "FIRESTORE";
+  audioSource: "FIRESTORE";
 }) => {
   const audioCtx = useMemo(() => buildAudioContext(), []);
   const audio = useMemo(() => buildAudio(), []);
@@ -97,23 +95,8 @@ const InternalMediaStreamAnalyzer = ({
   const { onDisabled, onStreamCreated } = useMediaStreamLink(audio, analyzer);
 
   return (
-    <>
-      {audioSource === AUDIO_SOURCE.MICROPHONE ? (
-        <MicrophoneAudioControls
-          audio={audio}
-          onDisabled={onDisabled}
-          onStreamCreated={onStreamCreated}
-        />
-      ) : audioSource === AUDIO_SOURCE.SCREEN_SHARE ? (
-        <ScreenShareControls
-          audio={audio}
-          onDisabled={onDisabled}
-          onStreamCreated={onStreamCreated}
-        />
-      ) : (
-        (audioSource satisfies never)
-      )}
-      {analyzer instanceof FFTAnalyzer ? (
+    <>  
+            {analyzer instanceof FFTAnalyzer ? (
         <FFTAnalyzerControls analyzer={analyzer} />
       ) : analyzer instanceof ScopeAnalyzer ? (
         <AudioScopeAnalyzerControls analyzer={analyzer} />
@@ -128,15 +111,9 @@ const AudioAnalyzer = ({ mode }: { mode: "AUDIO" | "AUDIO_SCOPE" }) => {
   const { audioSource } = useAudioSourceContext();
 
   switch (audioSource) {
-    case AUDIO_SOURCE.SOUNDCLOUD:
-    case AUDIO_SOURCE.FILE_UPLOAD:
+
       case AUDIO_SOURCE.FIRESTORE:
-        return <InternalAudioAnalyzer mode={mode} audioSource={audioSource} />;
-    case AUDIO_SOURCE.MICROPHONE:
-    case AUDIO_SOURCE.SCREEN_SHARE:
-      return (
-        <InternalMediaStreamAnalyzer mode={mode} audioSource={audioSource} />
-      );
+        return <InternalAudioAnalyzer mode={mode} audioSource={audioSource} />
     default:
       return audioSource satisfies never;
   }

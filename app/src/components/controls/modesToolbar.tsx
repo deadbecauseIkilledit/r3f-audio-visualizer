@@ -6,8 +6,6 @@ import {
   Music,
   Shell,
   Waves,
-  Mic,
-  ScreenShare,
   type LucideProps,
   RefreshCcw,
 } from "lucide-react";
@@ -62,7 +60,6 @@ import {
 } from "@/lib/applicationModes";
 import { cn } from "@/lib/utils";
 
-import { SoundcloudControls } from "./audio/soundcloud/controls";
 import FirestoreAudioControls from "../audio/sourceControls/firestore";
 
 const ModeIcon = ({
@@ -88,12 +85,6 @@ const AudioSourceIcon = ({
   ...props
 }: { audioSource: AudioSource } & LucideProps) => {
   switch (audioSource) {
-    case AUDIO_SOURCE.SOUNDCLOUD:
-      return <Music {...props} />;
-    case AUDIO_SOURCE.MICROPHONE:
-      return <Mic {...props} />;
-    case AUDIO_SOURCE.SCREEN_SHARE:
-      return <ScreenShare {...props} />;
     case AUDIO_SOURCE.FIRESTORE:
       return <Database {...props} />;
     default:
@@ -292,13 +283,8 @@ const AudioSourceControls = () => {
     // Handle stream created event here...
   };
   switch (audioSource) {
-    case AUDIO_SOURCE.SOUNDCLOUD:
-      return <SoundcloudControls />;
     case AUDIO_SOURCE.FIRESTORE:
       return <FirestoreAudioControls audio={audio} onStreamCreated={onStreamCreated} />;
-    case AUDIO_SOURCE.MICROPHONE:
-    case AUDIO_SOURCE.SCREEN_SHARE:
-      return null;
     default:
       return audioSource satisfies never;
   }
