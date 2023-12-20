@@ -1,1 +1,0 @@
-gsutil cors set cors-json-file.json gs://musicwebsite-25571.appspot.com

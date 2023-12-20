@@ -62,7 +62,6 @@ import {
 } from "@/lib/applicationModes";
 import { cn } from "@/lib/utils";
 
-import { FileUploadControls } from "./audio/fileUpload";
 import { SoundcloudControls } from "./audio/soundcloud/controls";
 import FirestoreAudioControls from "../audio/sourceControls/firestore";
 
@@ -299,7 +298,6 @@ const AudioSourceControls = () => {
       return <FirestoreAudioControls audio={audio} onStreamCreated={onStreamCreated} />;
     case AUDIO_SOURCE.MICROPHONE:
     case AUDIO_SOURCE.SCREEN_SHARE:
-      // TODO: Add controls
       return null;
     default:
       return audioSource satisfies never;
